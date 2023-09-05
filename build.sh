@@ -14,15 +14,16 @@ prepare(){
     echo '======================= 准备开始 ======================='
     echo $PWD
     # 删除编译目录
-    rm -rf build
+    rm -rf build/proot-distro
+    rm -rf build/qshell
+
     mkdir -p build/proot-distro
-    cp proot-distro-3.13.0.tar.gz build/proot-distro/proot-distro-3.13.0.tar.gz
     mkdir -p build/bootstrap
-    cp termux-packages.zip build/bootstrap/termux-packages.zip
-    # 下载 qshell
     mkdir -p build/qshell
-    wget -P build/qshell https://github.com/qiniu/qshell/releases/download/v2.12.0/qshell-v2.12.0-linux-amd64.tar.gz
-    tar -xzvf build/qshell/qshell-v2.12.0-linux-amd64.tar.gz -C build/qshell
+    
+    cp proot-distro-3.13.0.tar.gz build/proot-distro/proot-distro-3.13.0.tar.gz
+    cp termux-packages.zip build/bootstrap/termux-packages.zip
+    cp qshell build/qshell/qshell
     chmod +x build/qshell/qshell
     echo '======================= 准备结束 ======================='
 }
@@ -52,7 +53,7 @@ process_bootstrap(){
     echo '======================= 处理 bootstrap 开始 ======================='
     cd build/bootstrap
     echo $PWD
-    unzip termux-packages.zip
+    unzip -o termux-packages.zip
     chmod -R 777 termux-packages
     cd termux-packages
     # TODO 处理 proot-distro 的 MD5
@@ -69,15 +70,15 @@ process_bootstrap(){
 
 build_bootstrap(){
     echo '======================= 编译 bootstrap 开始 ======================='
-    cd build/bootstrap/termux-packages/scripts
+    cd build/bootstrap/termux-packages/
     echo $PWD
-    chmod +x ./run-docker.sh
-    ./run-docker.sh
-    exit
-    # TODO 上传文件到 KODO
-    ./../qshell/qshell account --overwrite $ACCESS_KEY $SECRET_KEY phelps
-    ./../qshell/qshell rput --overwrite "sdk-release" "termux/$PACKAGE_NAME/bootstrap-aarch64.zip" $(realpath "./bootstrap-aarch64.zip")
-    cd ../../../..
+    chmod +x ./scripts/run-docker.sh
+    ./scripts/run-docker.sh
+    # exit
+    # # TODO 上传文件到 KODO
+    # ./../../qshell/qshell account --overwrite $ACCESS_KEY $SECRET_KEY phelps
+    # ./../../qshell/qshell rput --overwrite "sdk-release" "termux/$PACKAGE_NAME/bootstrap-aarch64.zip" $(realpath "./bootstrap-aarch64.zip")
+    cd ../../..
     echo '======================= 编译 bootstrap 结束 ======================='
 }
 
